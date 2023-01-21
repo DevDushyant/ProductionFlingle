@@ -6,26 +6,28 @@ using API.Entities;
 using API.Extensions;
 using API.Interfaces;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 namespace API.SignalR
 {
-   public class MessageHub : Hub
+    //[Authorize]
+    public class MessageHub : Hub
    {
-       //private readonly IMessageRepository _messageRepository;
+      //private readonly IMessageRepository _messageRepository;
        private readonly IMapper _mapper;
        private readonly IUserRepository _userRepository;
        private readonly IHubContext<PresenceHub> _presenceHub;
        private readonly PresenceTracker _tracker;
         private readonly IUnitOfWork unitOfWork;
-       public MessageHub(IMessageRepository messageRepository, IMapper mapper,
-           IUserRepository userRepository, IHubContext<PresenceHub> presenceHub,
+       public MessageHub(/*IMessageRepository messageRepository,*/ IMapper mapper,
+           /*IUserRepository userRepository,*/ IHubContext<PresenceHub> presenceHub,
            PresenceTracker tracker, IUnitOfWork unitOfWork)
        {
            _tracker = tracker;
            _presenceHub = presenceHub;
-           _userRepository = userRepository;
+           //_userRepository = userRepository;
            _mapper = mapper;
-          // _messageRepository = messageRepository;
+          //_messageRepository = messageRepository;
             this.unitOfWork = unitOfWork;
        }
 
@@ -100,8 +102,8 @@ namespace API.SignalR
                 throw new HubException("You cannot send messages to yourself");
 
 
-            var sender = await _userRepository.GetUserByUsernameAsync(username);
-            var recipient = await _userRepository.GetUserByUsernameAsync(createMessageDto.RecipientUsername);
+            var sender = await unitOfWork.UserRepository.GetUserByUsernameAsync(username);
+            var recipient = await unitOfWork.UserRepository.GetUserByUsernameAsync(createMessageDto.RecipientUsername);
 
 
             if (recipient == null) throw new HubException("Not found user");

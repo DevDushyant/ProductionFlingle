@@ -25,6 +25,7 @@ using API.SignalR;
 using API.Middlewares;
 using System.Threading;
 using Microsoft.AspNetCore.Http;
+using CloudinaryDotNet;
 
 var builder = WebApplication.CreateBuilder(args);
 var policyName = "_myAllowSpecificOrigins";
@@ -142,18 +143,33 @@ builder.Services.AddScoped<LogUserActivity>();
 // builder.Services.AddScoped<ILikesRepository, LikesRepository>();
 // builder.Services.AddScoped<IMessageRepository, MessageRepository>();
 
-builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+//builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddAutoMapper(typeof(AutoMapperProfiles).Assembly);
 builder.Services.AddSingleton<PresenceTracker>();
-
-builder.Services.AddSignalR(options =>
-{
-    options.EnableDetailedErrors = true;
+builder.Services.AddSingleton<Cloudinary>();
+//builder.Services.AddSignalR();
+ builder.Services.AddSignalR(e => {
+    e.MaximumReceiveMessageSize = 102400000;
 });
 
 var app = builder.Build();
+// Configure the HTTP request pipeline.
+if (app.Environment.IsDevelopment())
+{
+    app.UseDeveloperExceptionPage();
+    app.UseSwagger();
+    app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "WebAPIv7 v1"));
+}
+app.UseHttpsRedirection();
+app.UseDefaultFiles();
+app.UseStaticFiles();
+app.Use(async (context, next) =>
+{
+    Thread.CurrentPrincipal = context.User;
+    await next(context);
+});
 
 
 Configure(app);
@@ -169,10 +185,9 @@ async void Configure(WebApplication host)
         var context = services.GetRequiredService<DataContext>();
         var userManager = services.GetRequiredService<UserManager<AppUser>>();
         var roleManager = services.GetRequiredService<RoleManager<AppRole>>();
+        if(roleManager.Roles==null)
         context.Database.Migrate();
         await Seed.SeedUsers(userManager, roleManager);
-
-
     }
     catch (Exception ex)
     {
@@ -181,31 +196,17 @@ async void Configure(WebApplication host)
     }
 }
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseDeveloperExceptionPage();
-    app.UseSwagger();
-    app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "WebAPIv7 v1"));
-}
 
-
-app.UseHttpsRedirection();
-app.Use(async (context, next) =>
-{
-    Thread.CurrentPrincipal = context.User;
-    await next(context);
-});
-//app.UseMiddleware<ExceptionMiddleware>();
-app.MapControllers();
+app.UseMiddleware<ExceptionMiddleware>();
+app.UseCors(policyName);
+app.UseAuthentication();
 app.UseRouting();
 app.UseAuthorization();
-app.UseDefaultFiles();
-app.UseStaticFiles();
-app.MapFallbackToController("Index","Fallback");
+app.MapControllers();
+app.MapFallbackToController("Index", "Fallback");
 app.MapHub<PresenceHub>("hubs/presence");
 app.MapHub<MessageHub>("hubs/message");
-app.UseCors(policyName);
+
 
 
 
