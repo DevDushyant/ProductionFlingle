@@ -169,7 +169,6 @@ async void Configure(WebApplication host)
         var context = services.GetRequiredService<DataContext>();
         var userManager = services.GetRequiredService<UserManager<AppUser>>();
         var roleManager = services.GetRequiredService<RoleManager<AppRole>>();
-        if(roleManager.Roles==null)
         context.Database.Migrate();
         await Seed.SeedUsers(userManager, roleManager);
 

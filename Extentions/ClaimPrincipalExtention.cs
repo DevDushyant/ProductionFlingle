@@ -1,4 +1,5 @@
 
+using System.Linq;
 using System.Security.Claims;
 namespace API.Extensions { 
 public static class ClaimPrincipalExtention
@@ -10,7 +11,11 @@ public static class ClaimPrincipalExtention
 
     public static int GetUserId(this ClaimsPrincipal user)
     {
-        return int.Parse(user.FindFirstValue("Id"));
+        var userClaimId = user.Claims.FirstOrDefault(f => f.Type.Equals("sid"));
+            if (userClaimId != null)
+                return int.Parse(userClaimId.Value);
+            else
+                return 0;
     }
 
 } }
