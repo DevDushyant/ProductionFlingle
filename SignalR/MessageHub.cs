@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 namespace API.SignalR
 {
-    //[Authorize]
+    [Authorize]
     public class MessageHub : Hub
    {
       //private readonly IMessageRepository _messageRepository;
