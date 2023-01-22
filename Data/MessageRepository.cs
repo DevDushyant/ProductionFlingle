@@ -114,7 +114,7 @@ namespace API.Data
 
 
            var unreadMessages = messages.Where(m => m.DateRead == null
-               && m.RecipientUsername == currentUsername).ToList();
+               && m.RecipientUsername == recipientUsername).ToList();
 
 
            if (unreadMessages.Any())
