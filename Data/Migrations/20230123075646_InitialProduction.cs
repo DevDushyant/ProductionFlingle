@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Flingletraining.Data.Migrations
 {
     /// <inheritdoc />
-    public partial class FirstMIgration : Migration
+    public partial class InitialProduction : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
