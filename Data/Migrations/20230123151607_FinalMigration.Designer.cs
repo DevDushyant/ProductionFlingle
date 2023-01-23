@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Flingletraining.Data.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20230123075646_InitialProduction")]
-    partial class InitialProduction
+    [Migration("20230123151607_FinalMigration")]
+    partial class FinalMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
